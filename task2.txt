@@ -1,0 +1,94 @@
+# Titanic Dataset - Data Cleaning and Exploratory Data Analysis (EDA)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# -----------------------------
+# 1. Load Dataset
+# -----------------------------
+# Make sure titanic.csv is in the same folder
+df = pd.read_csv("titanic.csv")
+
+print("Initial Dataset Info:")
+print(df.info())
+print("\nFirst 5 rows:")
+print(df.head())
+
+# -----------------------------
+# 2. Data Cleaning
+# -----------------------------
+
+# Handle missing values
+df['Age'] = df['Age'].fillna(df['Age'].median())
+df['Embarked'] = df['Embarked'].fillna(df['Embarked'].mode()[0])
+
+# Drop column with too many missing values
+df.drop(columns=['Cabin'], inplace=True)
+
+print("\nMissing Values After Cleaning:")
+print(df.isnull().sum())
+
+# -----------------------------
+# 3. Feature Engineering
+# -----------------------------
+
+# Create FamilySize feature
+df['FamilySize'] = df['SibSp'] + df['Parch'] + 1
+
+# Convert categorical columns
+df['Sex'] = df['Sex'].map({'male': 0, 'female': 1})
+
+# -----------------------------
+# 4. Exploratory Data Analysis
+# -----------------------------
+
+# Survival Count
+plt.figure()
+df['Survived'].value_counts().plot(kind='bar')
+plt.xlabel("Survived (0 = No, 1 = Yes)")
+plt.ylabel("Count")
+plt.title("Survival Count")
+plt.show()
+
+# Survival by Gender
+plt.figure()
+df.groupby('Sex')['Survived'].mean().plot(kind='bar')
+plt.xlabel("Gender (0 = Male, 1 = Female)")
+plt.ylabel("Survival Rate")
+plt.title("Survival Rate by Gender")
+plt.show()
+
+# Survival by Passenger Class
+plt.figure()
+df.groupby('Pclass')['Survived'].mean().plot(kind='bar')
+plt.xlabel("Passenger Class")
+plt.ylabel("Survival Rate")
+plt.title("Survival Rate by Passenger Class")
+plt.show()
+
+# Age Distribution
+plt.figure()
+plt.hist(df['Age'], bins=20)
+plt.xlabel("Age")
+plt.ylabel("Frequency")
+plt.title("Age Distribution")
+plt.show()
+
+# Fare vs Survival
+plt.figure()
+df.boxplot(column='Fare', by='Survived')
+plt.xlabel("Survived")
+plt.ylabel("Fare")
+plt.title("Fare Distribution by Survival")
+plt.suptitle("")
+plt.show()
+
+# -----------------------------
+# 5. Correlation Analysis
+# -----------------------------
+
+correlation = df[['Survived', 'Pclass', 'Sex', 'Age', 'Fare', 'FamilySize']].corr()
+print("\nCorrelation Matrix:")
+print(correlation)
+
+print("\nEDA Completed Successfully!")
